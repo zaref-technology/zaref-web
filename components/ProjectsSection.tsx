@@ -82,7 +82,7 @@ function ProjectCard({ project: proj, featured }: { project: Project; featured: 
       <Link
         href={href}
         aria-label={`View case study: ${proj.title}`}
-        className={`group/image relative flex w-full items-center justify-center overflow-hidden rounded-xl border border-border ${featured ? 'mb-6 aspect-[16/10]' : 'mb-4 aspect-[16/10]'}`}
+        className={`group/image relative flex w-full items-center justify-center overflow-hidden rounded-xl border border-border ${featured ? 'mb-6 aspect-video' : 'mb-4 aspect-video'}`}
         style={{
           background: firstImg ? 'var(--surface)' : `linear-gradient(135deg, ${accentColor}18, ${accentColor}38)`,
         }}

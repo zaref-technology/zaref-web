@@ -8,6 +8,7 @@ import { ROUTES } from '@/constants/routes';
 import { DEFAULT_OG_IMAGES } from '@/constants/site';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbJsonLd } from '@/lib/structured-data';
+import ProductsTeaser from '@/components/ProductsTeaser';
 import WorkGrid from './WorkGrid';
 
 const title = 'Work';
@@ -54,6 +55,8 @@ export default async function WorkPage() {
           <WorkGrid projects={projects} />
         </Container>
       </section>
+
+      <ProductsTeaser />
 
       {/* Closing CTA — same restrained dark treatment used on Home/Services/Case Study,
           connecting proof of past work to the next conversation */}

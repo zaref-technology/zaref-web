@@ -50,7 +50,7 @@ function FeaturedProject({ project: proj }: { project: Project }) {
       <Link
         href={href}
         aria-label={`View case study: ${proj.title}`}
-        className="group/image relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-xl border border-border lg:order-2"
+        className="group/image relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-border lg:order-2"
         style={{ background: firstImg ? 'var(--surface)' : 'var(--surface-2)' }}
       >
         {firstImg ? (
@@ -103,7 +103,7 @@ function ProjectCard({ project: proj }: { project: Project }) {
       <Link
         href={href}
         aria-label={`View case study: ${proj.title}`}
-        className="group/image relative mb-4 flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-xl border border-border"
+        className="group/image relative mb-4 flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-border"
         style={{ background: firstImg ? 'var(--surface)' : 'var(--surface-2)' }}
       >
         {firstImg ? (

@@ -1,11 +1,12 @@
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/constants/site';
-import { ROUTES, getProjectUrl } from '@/constants/routes';
+import { ROUTES, getProjectUrl, getProductUrl } from '@/constants/routes';
 import { CAPABILITIES } from '@/constants/capabilities';
 import { listProjects } from '@/services/projects.service';
+import { listProducts } from '@/services/products.service';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticRoutes = [ROUTES.home, ROUTES.services, ROUTES.work, ROUTES.company, ROUTES.contact, ROUTES.privacy, ROUTES.terms];
+  const staticRoutes = [ROUTES.home, ROUTES.services, ROUTES.work, ROUTES.products, ROUTES.company, ROUTES.contact, ROUTES.privacy, ROUTES.terms];
 
   // No `lastModified` for static pages: there is no reliable modification timestamp for them,
   // and publishing the current request time would advertise freshness that doesn't exist.
@@ -34,5 +35,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
 
-  return [...staticEntries, ...capabilityEntries, ...projectEntries];
+  // Published products only (listProducts already excludes drafts).
+  const products = await listProducts().catch(() => []);
+  const productEntries: MetadataRoute.Sitemap = products
+    .filter((product) => !!product.slug)
+    .map((product) => {
+      const modified = product.updatedAt?.toDate() ?? product.createdAt?.toDate();
+      return {
+        url: `${SITE_URL}${getProductUrl(product)}`,
+        ...(modified ? { lastModified: modified } : {}),
+      };
+    });
+
+  return [...staticEntries, ...capabilityEntries, ...projectEntries, ...productEntries];
 }
