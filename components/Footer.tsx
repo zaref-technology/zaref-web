@@ -14,6 +14,7 @@ const colHeading = 'mb-4 text-xs font-bold uppercase tracking-wider text-foregro
 const companyLinks = [
   { href: ROUTES.company, label: 'Company' },
   { href: ROUTES.work, label: 'Work' },
+  { href: ROUTES.products, label: 'Products' },
   { href: ROUTES.contact, label: 'Contact' },
 ];
 

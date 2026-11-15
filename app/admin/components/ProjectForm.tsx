@@ -604,7 +604,7 @@ export default function ProjectForm({ initialData, mode }: ProjectFormProps) {
 
       {/* ═══ 7. MEDIA ═══ */}
       <div style={sectionStyle}>
-        <SectionHeading title="Media" subtitle="The first image is the cover, shown on cards and as the case-study hero." />
+        <SectionHeading title="Media" subtitle="The first image is the cover, shown on cards and as the case-study hero. Use 1280 × 720 px (16:9, YouTube-thumbnail size) for every image." />
 
         <div>
           <label style={labelStyle}>Project Images</label>

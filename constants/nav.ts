@@ -16,5 +16,6 @@ export const NAV_LINKS: NavLink[] = [
   { href: ROUTES.services, label: 'Services', activePath: ROUTES.services },
   { href: ROUTES.solutions, label: 'Solutions', activePath: ROUTES.solutions },
   { href: ROUTES.work, label: 'Work', activePath: ROUTES.work },
+  { href: ROUTES.products, label: 'Products', activePath: ROUTES.products },
   { href: ROUTES.company, label: 'Company', activePath: ROUTES.company },
 ];

@@ -136,3 +136,34 @@ export function projectJsonLd(project: {
     isPartOf: { '@id': WEBSITE_ID },
   };
 }
+
+/** A Zaref product as a SoftwareApplication. Only facts that exist on the product record. */
+export function productJsonLd(product: {
+  /** Canonical public path, e.g. `/products/{slug}`. */
+  path: string;
+  name: string;
+  description: string;
+  image?: string;
+  category: string;
+  /** The product's own site, when it has one. */
+  productUrl?: string;
+  dateModified?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: product.name,
+    description: product.description || undefined,
+    image: product.image || undefined,
+    applicationCategory: product.category || 'BusinessApplication',
+    operatingSystem: 'Web',
+    url: `${SITE_URL}${product.path}`,
+    mainEntityOfPage: `${SITE_URL}${product.path}`,
+    sameAs: product.productUrl || undefined,
+    inLanguage: 'en',
+    dateModified: product.dateModified,
+    creator: { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
+    isPartOf: { '@id': WEBSITE_ID },
+  };
+}
