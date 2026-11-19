@@ -25,6 +25,10 @@ export interface Product {
   coverImage: string;
   features: string[];
   technologies: string[];
+  /** Demo/walkthrough links played inline on the detail page: YouTube videos, YouTube Shorts,
+   * Instagram posts/reels. Stored as the URLs the admin pasted; parsed by lib/video.ts.
+   * Optional — products created before this field existed simply have none. */
+  videos?: string[];
   /** Live product / waitlist URL. Empty for a product with no public destination yet. */
   productUrl: string;
   /** One featured slot is shown large at the top of /products. */

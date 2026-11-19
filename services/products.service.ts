@@ -79,6 +79,8 @@ function toPayload(data: ProductInput): ProductInput {
     productUrl: data.productUrl.trim(),
     features: data.features.map(f => f.trim()).filter(Boolean),
     technologies: data.technologies.map(t => t.trim()).filter(Boolean),
+    // Always an array (never undefined — Firestore rejects it); blanks and duplicates dropped.
+    videos: [...new Set((data.videos ?? []).map(v => v.trim()).filter(Boolean))],
     order: Number(data.order),
   };
 }

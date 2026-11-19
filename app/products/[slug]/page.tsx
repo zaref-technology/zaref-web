@@ -6,8 +6,10 @@ import { getProductBySlug, listProducts } from '@/services/products.service';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { ProductCard, ProductLogo, ProductVisual, StageBadge } from '@/components/ProductCard';
+import { VideoEmbed } from '@/components/VideoEmbed';
+import { parseVideoUrl, type ParsedVideo } from '@/lib/video';
 import { ROUTES, getProductUrl } from '@/constants/routes';
-import { PRODUCT_CTA, stageMeta } from '@/constants/product';
+import { PRODUCT_CTA } from '@/constants/product';
 import { SITE_NAME } from '@/constants/site';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbJsonLd, productJsonLd } from '@/lib/structured-data';
@@ -52,9 +54,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (!product) notFound();
 
   const path = getProductUrl(product);
-  const stage = stageMeta(product.stage);
   const paragraphs = product.description.split('\n').map(p => p.trim()).filter(Boolean);
   const others = (await listProducts().catch(() => [])).filter(p => p.id !== product.id).slice(0, 2);
+
+  // Unrecognised links are dropped here rather than rendered, so only known providers are ever
+  // placed in an iframe. Landscape (YouTube) and portrait (Shorts / Instagram) are laid out apart.
+  const videos = (product.videos ?? []).map(parseVideoUrl).filter((v): v is ParsedVideo => v !== null);
+  const wideVideos = videos.filter(v => v.orientation === 'landscape');
+  const tallVideos = videos.filter(v => v.orientation === 'portrait');
 
   const facts = [
     { label: 'Category', value: product.category },
@@ -74,51 +81,79 @@ export default async function ProductDetailPage({ params }: PageProps) {
         dateModified: product.updatedAt?.toDate().toISOString(),
       })} />
 
-      <Container className="py-4">
+      <Container className="flex items-center justify-between gap-4 py-4">
         <Link href={ROUTES.products} className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition-colors hover:text-foreground">
           <ArrowLeft size={15} /> Back to Products
         </Link>
+        {product.productUrl ? (
+          <Button href={product.productUrl} size="sm">
+            {PRODUCT_CTA[product.stage]} <ArrowRight size={14} />
+          </Button>
+        ) : product.stage === 'in-development' ? (
+          <Button href={ROUTES.contact} size="sm">
+            Request early access <ArrowRight size={14} />
+          </Button>
+        ) : null}
       </Container>
 
       <article>
-        {/* Hero */}
-        <div className="border-b border-border pb-12 pt-6 md:pt-10">
-          <Container>
-            <div className="mb-5 flex flex-wrap items-center gap-3">
-              <ProductLogo product={product} size={48} />
-              <StageBadge stage={product.stage} />
-              {product.category && (
-                <span className="text-xs font-bold uppercase tracking-[0.12em] text-primary">{product.category}</span>
-              )}
-            </div>
-            <h1 className="mb-3 max-w-[820px] text-[clamp(2rem,4.2vw,3.25rem)] font-bold leading-[1.1] tracking-[-0.015em] text-foreground">
-              {product.name}
-            </h1>
-            <p className="max-w-[640px] text-lg leading-[1.6] text-muted">{product.tagline}</p>
-
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              {product.productUrl ? (
-                <Button href={product.productUrl}>
-                  {PRODUCT_CTA[product.stage]} <ArrowRight size={16} />
-                </Button>
-              ) : (
-                <Button href={ROUTES.contact}>
-                  {product.stage === 'in-development' ? 'Request early access' : 'Get in touch'} <ArrowRight size={16} />
-                </Button>
-              )}
-              {product.stage === 'in-development' && product.productUrl && (
-                <span className="text-sm text-muted">{stage.label} — launching soon.</span>
-              )}
-            </div>
-          </Container>
-        </div>
+        {/* The cover image leads the page. The product name is still the page's <h1> for search
+            engines and screen readers — just not repeated as a large visual hero. */}
+        <h1 className="sr-only">{product.name} — {product.tagline}</h1>
 
         {/* Visual */}
-        <Container className="pt-12">
+        <Container className="pt-2 md:pt-4">
           <div className="mx-auto max-w-[1100px]">
             <ProductVisual product={product} priority sizes="(min-width: 1152px) 1100px, 100vw" />
           </div>
         </Container>
+
+        {/* Videos — played inline */}
+        {videos.length > 0 && (
+          <Container className="pt-14">
+            <div className="mx-auto max-w-[1100px]">
+              <h2 className="mb-6 text-xs font-bold uppercase tracking-[0.12em] text-primary">See it in action</h2>
+
+              {wideVideos.length > 0 && (
+                <div className={`grid gap-6 ${wideVideos.length > 1 ? 'md:grid-cols-2' : ''}`}>
+                  {wideVideos.map(v => <VideoEmbed key={v.watchUrl} video={v} title={product.name} />)}
+                </div>
+              )}
+
+              {/* Vertical videos (Shorts, Instagram) sit on a framed stage so a single narrow
+                  player never floats alone in an empty row. With no wide video above, the stage
+                  also carries a short text block so both halves have content. */}
+              {tallVideos.length > 0 && (
+                <div
+                  className={`overflow-hidden rounded-2xl border border-border p-6 md:p-10 ${wideVideos.length > 0 ? 'mt-8' : ''}`}
+                  style={{
+                    background:
+                      'radial-gradient(ellipse at 20% 10%, rgba(37,99,235,0.14), transparent 55%), radial-gradient(ellipse at 90% 100%, rgba(124,58,237,0.10), transparent 50%), var(--surface-2)',
+                  }}
+                >
+                  <div className={wideVideos.length === 0 ? 'grid grid-cols-1 items-center gap-10 lg:grid-cols-[1fr_auto] lg:gap-16' : ''}>
+                    {wideVideos.length === 0 && (
+                      <div className="max-w-[460px]">
+                        <h3 className="mb-3 text-[clamp(1.5rem,2.6vw,2rem)] font-bold leading-[1.2] text-foreground">
+                          {product.name}, in action
+                        </h3>
+                        <p className="mb-6 text-[1.05rem] leading-[1.7] text-muted">{product.tagline}</p>
+                        {product.productUrl && (
+                          <Button href={product.productUrl}>
+                            {PRODUCT_CTA[product.stage]} <ArrowRight size={16} />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    <div className="flex flex-wrap justify-center gap-8">
+                      {tallVideos.map(v => <VideoEmbed key={v.watchUrl} video={v} title={product.name} />)}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Container>
+        )}
 
         {/* Body */}
         <Container className="py-14 md:py-20">
@@ -149,6 +184,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
             <aside className="lg:sticky lg:top-[calc(var(--header-height)+1.5rem)] lg:self-start">
               <div className="rounded-xl border border-border bg-surface p-6">
+                <div className="mb-6 flex items-center gap-3 border-b border-border pb-5">
+                  <ProductLogo product={product} size={44} />
+                  <span className="text-lg font-bold leading-[1.2] text-foreground">{product.name}</span>
+                </div>
                 <dl className="space-y-5">
                   <div>
                     <dt className={factLabel}>Status</dt>
