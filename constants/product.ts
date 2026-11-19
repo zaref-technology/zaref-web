@@ -29,3 +29,4 @@ export const PRODUCT_CATEGORIES = [
 
 export const MAX_PRODUCT_FEATURES = 6;
 export const MAX_PRODUCT_TECHNOLOGIES = 12;
+export const MAX_PRODUCT_VIDEOS = 6;

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   CheckCircle, AlertTriangle, Loader2, Upload, X, Plus, ExternalLink, Package,
 } from 'lucide-react';
+import { parseVideoUrl } from '@/lib/video';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { slugify } from '@/lib/slug';
 import { triggerRevalidate } from '@/lib/revalidate';
@@ -13,7 +14,7 @@ import {
 } from '@/services/products.service';
 import {
   PRODUCT_STAGES, PRODUCT_CATEGORIES, PRODUCT_CTA, stageMeta,
-  MAX_PRODUCT_FEATURES, MAX_PRODUCT_TECHNOLOGIES,
+  MAX_PRODUCT_FEATURES, MAX_PRODUCT_TECHNOLOGIES, MAX_PRODUCT_VIDEOS,
 } from '@/constants/product';
 import type { ProductInput, ProductStage, ProductStatus } from '@/types/product';
 
@@ -135,6 +136,7 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
     coverImage:   initialData?.coverImage   ?? '',
     features:     initialData?.features     ?? [],
     technologies: initialData?.technologies ?? [],
+    videos:       initialData?.videos       ?? [],
     productUrl:   initialData?.productUrl   ?? '',
     featured:     initialData?.featured     ?? false,
     order:        initialData?.order        ?? 1,
@@ -190,6 +192,8 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
     if (form.slug !== slugify(form.slug)) return 'Slug can only contain lowercase letters, numbers and hyphens.';
     if (!form.tagline.trim()) return 'A one-line tagline is required.';
     if (form.productUrl.trim() && !isValidHttpUrl(form.productUrl.trim())) return 'Product URL must be a valid http(s) link.';
+    const badVideo = (form.videos ?? []).findIndex(v => v.trim() && !parseVideoUrl(v));
+    if (badVideo !== -1) return `Video ${badVideo + 1} isn't a supported link. Use a YouTube video, YouTube Shorts, or Instagram post/reel URL.`;
     if (form.status === 'published') {
       if (!form.description.trim()) return 'Add a description before publishing.';
       if (form.stage !== 'in-development' && !form.productUrl.trim()) {
@@ -355,6 +359,55 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
             onBlur={() => addTech(techInput)}
             style={inputStyle}
           />
+        </div>
+      </Section>
+
+      <Section
+        title="Videos"
+        description="Demos and walkthroughs, played inline on the product page. Paste a YouTube video, YouTube Shorts, or Instagram post/reel link."
+      >
+        <div>
+          <label style={labelStyle}>Video links ({(form.videos ?? []).length}/{MAX_PRODUCT_VIDEOS})</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {(form.videos ?? []).map((v, i) => {
+              const parsed = parseVideoUrl(v);
+              return (
+                <div key={i}>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <input
+                      value={v} aria-label={`Video ${i + 1} link`} inputMode="url"
+                      placeholder="youtube.com/watch?v=… · youtube.com/shorts/… · instagram.com/reel/…"
+                      onChange={e => patch({ videos: (form.videos ?? []).map((x, j) => (j === i ? e.target.value : x)) })}
+                      style={inputStyle}
+                    />
+                    <button
+                      type="button" aria-label={`Remove video ${i + 1}`}
+                      onClick={() => patch({ videos: (form.videos ?? []).filter((_, j) => j !== i) })}
+                      style={{ padding: '0 0.8rem', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: '0.65rem', color: '#ef4444', cursor: 'pointer' }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  {v.trim() && (
+                    <p style={{ ...hintStyle, color: parsed ? '#10b981' : '#ef4444', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      {parsed
+                        ? <><CheckCircle size={12} /> {parsed.label} — plays {parsed.orientation === 'landscape' ? 'wide (16:9)' : 'vertical (9:16)'}</>
+                        : <><AlertTriangle size={12} /> Not recognised — use a YouTube, YouTube Shorts, or Instagram post/reel link.</>}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {(form.videos ?? []).length < MAX_PRODUCT_VIDEOS && (
+            <button
+              type="button" onClick={() => patch({ videos: [...(form.videos ?? []), ''] })}
+              style={{ marginTop: '0.6rem', padding: '0.5rem 0.9rem', background: 'transparent', border: '1.5px dashed var(--border)', borderRadius: '0.65rem', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'inherit' }}
+            >
+              <Plus size={13} /> Add video
+            </button>
+          )}
+          <p style={hintStyle}>Instagram videos must be from a public account to play on the site.</p>
         </div>
       </Section>
 
