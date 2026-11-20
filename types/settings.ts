@@ -5,6 +5,9 @@ export interface SiteSettings {
   whatsapp: string;
   address: string;
   location: string;
+  /** Legal owner of the business (Zaref is a sole proprietorship). Shown on the Privacy Policy and
+   * Terms pages. Lives in Firestore so it is never hardcoded in the codebase. */
+  ownerName: string;
   // Social links
   github: string;
   linkedin: string;

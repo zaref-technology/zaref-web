@@ -3,7 +3,10 @@ import { Section } from '@/components/ui/Section';
 import { Badge } from '@/components/ui/Badge';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbJsonLd } from '@/lib/structured-data';
-import { OWNER, BUSINESS_TYPE } from '@/constants/legal';
+import Link from 'next/link';
+import { BUSINESS_TYPE } from '@/constants/legal';
+import { ROUTES } from '@/constants/routes';
+import { getSiteSettings } from '@/services/settings.service';
 
 /** Shared typography for legal page bodies (Privacy Policy, Terms & Conditions). */
 export const legal = {
@@ -64,23 +67,61 @@ export function LegalPage({ title, path, intro, lastUpdated, sections, children 
   );
 }
 
-export function OwnerEmailLink() {
-  return <a href={`mailto:${OWNER.email}`} className={legal.link}>{OWNER.email}</a>;
+/**
+ * Owner/contact details for the legal pages, read from Site Settings (Firestore) — never
+ * hardcoded. `getSiteSettings` is request-cached, so every component below shares one read.
+ */
+async function getLegalContact() {
+  const settings = await getSiteSettings();
+  const phone = settings.phone?.trim() ?? '';
+  return {
+    name: settings.ownerName?.trim() ?? '',
+    email: settings.email?.trim() ?? '',
+    phone,
+    phoneHref: phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : '',
+  };
 }
 
-/** The business/owner contact card shown at the end of each legal page. */
-export function OwnerContact() {
+/** The owner's name inline in a sentence; neutral wording until a name is set in Site Settings. */
+export async function OwnerName() {
+  const { name } = await getLegalContact();
+  return <span className={legal.strong}>{name || 'its proprietor'}</span>;
+}
+
+/** Contact email inline in a sentence; points to the Contact page until an email is set. */
+export async function OwnerEmailLink() {
+  const { email } = await getLegalContact();
+  if (!email) return <Link href={ROUTES.contact} className={legal.link}>our contact page</Link>;
+  return <a href={`mailto:${email}`} className={legal.link}>{email}</a>;
+}
+
+/** The business/owner contact card shown at the end of each legal page. Rows without a stored
+ * value are omitted rather than shown empty. */
+export async function OwnerContact() {
+  const { name, email, phone, phoneHref } = await getLegalContact();
   return (
     <address className="not-italic">
       <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-xl border border-border bg-surface p-5 text-sm leading-[1.7]">
         <dt className="font-semibold text-foreground">Business</dt>
         <dd className="text-muted">Zaref ({BUSINESS_TYPE})</dd>
-        <dt className="font-semibold text-foreground">Owner</dt>
-        <dd className="text-muted">{OWNER.name}</dd>
-        <dt className="font-semibold text-foreground">Email</dt>
-        <dd className="break-all"><OwnerEmailLink /></dd>
-        <dt className="font-semibold text-foreground">Phone</dt>
-        <dd><a href={OWNER.phoneHref} className={legal.link}>{OWNER.phone}</a></dd>
+        {name && (
+          <>
+            <dt className="font-semibold text-foreground">Owner</dt>
+            <dd className="text-muted">{name}</dd>
+          </>
+        )}
+        {email && (
+          <>
+            <dt className="font-semibold text-foreground">Email</dt>
+            <dd className="break-all"><a href={`mailto:${email}`} className={legal.link}>{email}</a></dd>
+          </>
+        )}
+        {phone && (
+          <>
+            <dt className="font-semibold text-foreground">Phone</dt>
+            <dd><a href={phoneHref} className={legal.link}>{phone}</a></dd>
+          </>
+        )}
       </dl>
     </address>
   );

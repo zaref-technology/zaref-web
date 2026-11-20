@@ -8,6 +8,8 @@ const DEFAULTS: SiteSettings = {
   phone: '',
   whatsapp: '',
   address: '',
+  // Empty until set in Admin → Site Settings; legal pages fall back to neutral wording.
+  ownerName: '',
   // Deliberately empty: when no location is stored we omit it rather than invent geographic reach.
   location: '',
   github: '',

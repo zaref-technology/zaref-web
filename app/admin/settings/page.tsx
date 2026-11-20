@@ -6,7 +6,7 @@ import { triggerRevalidate } from '@/lib/revalidate';
 import type { SiteSettings } from '@/types/settings';
 import {
   Mail, Phone, MessageCircle, MapPin, Globe2,
-  CheckCircle, AlertTriangle, Loader2, Save, Type, Tag,
+  CheckCircle, AlertTriangle, Loader2, Save, Type, Tag, User,
 } from 'lucide-react';
 import { SOCIAL_PLATFORMS } from '@/constants/social';
 import type { IconComponent } from '@/constants/service';
@@ -34,6 +34,12 @@ const SECTIONS: { title: string; fields: Field[] }[] = [
       { key: 'whatsapp', label: 'WhatsApp',      placeholder: '+1 234 567 8900',         icon: MessageCircle},
       { key: 'location', label: 'Location',      placeholder: 'Remote — Worldwide',      icon: MapPin       },
       { key: 'address',  label: 'Full Address',  placeholder: '123 Street, City, Country', icon: Globe2     },
+    ],
+  },
+  {
+    title: 'Legal',
+    fields: [
+      { key: 'ownerName', label: 'Owner / Legal Name', placeholder: 'Full legal name of the business owner', icon: User },
     ],
   },
   {
@@ -67,7 +73,8 @@ export default function SiteSettingsPage() {
     setSuccess(false);
     try {
       await saveSiteSettings(form);
-      // Settings feed the Footer on every page (via the root layout) plus the Contact page's info panel.
+      // Settings feed the Footer on every page (via the root layout), the Contact page's info panel and the
+      // legal pages' owner details — the layout revalidation below covers all of them.
       await triggerRevalidate([{ path: '/', type: 'layout' }, { path: '/contact' }]);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3500);
@@ -96,7 +103,7 @@ export default function SiteSettingsPage() {
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: 'clamp(1.4rem, 4vw, 1.9rem)', fontWeight: 800, color: 'var(--foreground)', margin: '0 0 0.35rem' }}>Site Settings</h1>
         <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.9rem' }}>
-          All changes are saved to Firestore and reflected on the Contact page and Footer instantly.
+          All changes are saved to Firestore and reflected on the Contact page, Footer and the Privacy Policy / Terms pages (name, email and phone) instantly.
         </p>
       </div>
 
