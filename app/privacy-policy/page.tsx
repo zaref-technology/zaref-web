@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import { LegalPage, OwnerContact, OwnerEmailLink, legal } from '@/components/LegalPage';
+import { LegalPage, OwnerContact, OwnerEmailLink, OwnerName, legal } from '@/components/LegalPage';
 import { DEFAULT_OG_IMAGES, SITE_URL } from '@/constants/site';
 import { ROUTES } from '@/constants/routes';
-import { OWNER } from '@/constants/legal';
 
 const title = 'Privacy Policy';
 const description = 'How Zaref collects, uses, stores and protects the information you share through this website and its contact form.';
@@ -55,7 +54,7 @@ export default function PrivacyPolicy() {
       <h2 id="who-we-are" className={h2}>Who we are</h2>
       <p className={p}>
         Zaref is a <span className={strong}>sole proprietorship</span> owned and operated by{' '}
-        <span className={strong}>{OWNER.name}</span>, who is responsible for the personal information collected through this website.
+        <OwnerName />, who is responsible for the personal information collected through this website.
       </p>
 
       <h2 id="information-we-collect" className={h2}>Information we collect</h2>

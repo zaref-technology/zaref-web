@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { LegalPage, OwnerContact, legal } from '@/components/LegalPage';
+import { LegalPage, OwnerContact, OwnerName, legal } from '@/components/LegalPage';
 import { DEFAULT_OG_IMAGES, SITE_URL } from '@/constants/site';
 import { ROUTES } from '@/constants/routes';
-import { OWNER } from '@/constants/legal';
 
 const title = 'Terms & Conditions';
 const description = 'The terms that apply when you use the Zaref website, send us an enquiry or engage us for a software project.';
@@ -49,7 +48,7 @@ export default function TermsAndConditions() {
       <p className={p}>
         These Terms &amp; Conditions govern your use of{' '}
         <span className={strong}>{SITE_URL.replace(/^https?:\/\//, '')}</span> (the &ldquo;website&rdquo;). The website is operated by Zaref (&ldquo;Zaref&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;), a{' '}
-        <span className={strong}>sole proprietorship</span> owned by <span className={strong}>{OWNER.name}</span>.
+        <span className={strong}>sole proprietorship</span> owned by <OwnerName />.
       </p>
       <p className={p}>
         By accessing or using the website, you agree to these terms. If you do not agree, please do not use the website.
