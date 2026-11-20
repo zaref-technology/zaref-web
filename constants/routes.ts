@@ -1,4 +1,5 @@
 import type { Project } from '@/types/project';
+import type { Product } from '@/types/product';
 
 /** Canonical public route paths — the single source of truth for top-level URLs. Header and
  * Footer intentionally stay as separate arrays (different structure/purpose), but both should
@@ -8,6 +9,7 @@ export const ROUTES = {
   services: '/services',
   solutions: '/services#solutions',
   work: '/work',
+  products: '/products',
   company: '/company',
   contact: '/contact',
   testimonials: '/testimonials',
@@ -20,4 +22,9 @@ export const ROUTES = {
  * never produces a dead link, but every project should have a real slug in normal operation. */
 export function getProjectUrl(project: Pick<Project, 'id' | 'slug'>): string {
   return `${ROUTES.work}/${project.slug || project.id}`;
+}
+
+/** Canonical product URL — /products/{slug}. */
+export function getProductUrl(product: Pick<Product, 'slug'>): string {
+  return `${ROUTES.products}/${product.slug}`;
 }

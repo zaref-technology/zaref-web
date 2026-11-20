@@ -5,6 +5,7 @@ import CredibilityStrip from '@/components/CredibilityStrip';
 import ServicesSection from '@/components/ServicesSection';
 import BusinessSoftwareSection from '@/components/BusinessSoftwareSection';
 import ProjectsSection from '@/components/ProjectsSection';
+import ProductsSection from '@/components/ProductsSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import ApproachSection from '@/components/ApproachSection';
 import PartnershipSection from '@/components/PartnershipSection';
@@ -32,6 +33,9 @@ export default function Home() {
 
       {/* Projects — live from Firestore, curated subset (featured presentation) */}
       <ProjectsSection variant="featured" />
+
+      {/* Products — Zaref's own software, live from Firestore; hidden until one is published */}
+      <ProductsSection />
 
       <ApproachSection />
 
